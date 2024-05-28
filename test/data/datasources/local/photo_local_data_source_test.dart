@@ -24,8 +24,8 @@ void main() {
   ];
 
   const String cachedPhotosKey = 'cached_photos';
-  final jsonString = jsonEncode(
-      photoModelList.map((photo) => photo.toJson()).toList());
+  final jsonString =
+      jsonEncode(photoModelList.map((photo) => photo.toJson()).toList());
   setUp(() {
     mockSharedPreferences = MockSharedPreferences();
     photoLocalDataSourceImpl =
@@ -33,20 +33,20 @@ void main() {
   });
 
   group('getPhotos', () {
-
-
     test("should throw CacheFailure", () async {
       when(mockSharedPreferences.getString(cachedPhotosKey)).thenThrow(
-              (_) =>
-          const CacheException(message: 'No cached photos available'));
+          (_) => const CacheException(message: 'No cached photos available'));
 
       expect(() => photoLocalDataSourceImpl.getCachedPhotos(),
           throwsA(isInstanceOf<CacheException>()));
-      verify(photoLocalDataSourceImpl.getCachedPhotos());
+      //to be used only with mocks objects
+      verify(mockSharedPreferences.getString(cachedPhotosKey));
+      verifyNoMoreInteractions(mockSharedPreferences);
+
     });
     test("should return Photomodel from the local db", () async {
-      when(mockSharedPreferences.getString(cachedPhotosKey)).thenReturn(
-          jsonString);
+      when(mockSharedPreferences.getString(cachedPhotosKey))
+          .thenReturn(jsonString);
 
       expect(await photoLocalDataSourceImpl.getCachedPhotos(),
           equals(photoModelList));
@@ -69,4 +69,3 @@ void main() {
     });
   });
 }
-
