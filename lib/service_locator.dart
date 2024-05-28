@@ -6,13 +6,16 @@ import 'package:clean_architecture_provider_fetching_images/features/photo_listi
 import 'package:clean_architecture_provider_fetching_images/features/photo_listing/presentation/providers/photo_provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 
 final sl = GetIt.instance;
 
 Future<void> setupLocator() async {
   final sharedPreferences = await SharedPreferences.getInstance();
+  final http.Client client = http.Client();
   sl.registerLazySingleton(() => sharedPreferences);
+  sl.registerLazySingleton(() => client);
 
   //! Data sources
   sl.registerLazySingleton<PhotoLocalDataSource>(

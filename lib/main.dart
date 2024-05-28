@@ -7,7 +7,9 @@ import 'service_locator.dart' as di;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.setupLocator(); // Initialize the service locator
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+      create: (_) => di.sl<PhotoProvider>(),
+      child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -15,16 +17,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => di.sl<PhotoProvider>(),
-      child: MaterialApp(
+    return MaterialApp(
         title: 'Photo Fetcher',
         theme: ThemeData(
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: const PhotoPage(),
-      ),
+
+
     );
   }
 }

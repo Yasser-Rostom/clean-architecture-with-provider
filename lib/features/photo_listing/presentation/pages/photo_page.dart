@@ -1,12 +1,18 @@
+import 'package:clean_architecture_provider_fetching_images/features/photo_listing/presentation/widgets/list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../providers/photo_provider.dart';
 
-class PhotoPage extends StatelessWidget {
+class PhotoPage extends StatefulWidget {
   const PhotoPage({super.key});
 
+  @override
+  State<PhotoPage> createState() => _PhotoPageState();
+}
+
+class _PhotoPageState extends State<PhotoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,6 +22,7 @@ class PhotoPage extends StatelessWidget {
       body: Center(
         child: Consumer<PhotoProvider>(
           builder: (context, provider, child) {
+
             if (provider.isLoading) {
               return Shimmer.fromColors(
                 baseColor: Colors.grey[300]!,
@@ -46,13 +53,24 @@ class PhotoPage extends StatelessWidget {
                 itemCount: provider.photos.length,
                 itemBuilder: (context, index) {
                   final photo = provider.photos[index];
-                  return ListTile(
-                    leading: CachedNetworkImage(
-                      imageUrl: photo.thumbnailUrl,
-                      placeholder: (context, url) => CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
+                  return Container(
+                    margin: const EdgeInsets.fromLTRB(10,5,10,5),
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const [BoxShadow(color: Colors.grey,
+                        spreadRadius: 1,
+
+                          blurRadius:1
+                      )]
                     ),
-                    title: Text(photo.title),
+                    child: ListItem(
+                      title: photo.title,
+                      image: photo.thumbnailUrl,
+                      rating: "4.4",
+                      subtitle: "$index review(s)",
+                    )
                   );
                 },
               );
@@ -67,5 +85,15 @@ class PhotoPage extends StatelessWidget {
         child: const Icon(Icons.refresh),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+     context.read<PhotoProvider>().fetchPhotos();
+
+   });
+
   }
 }

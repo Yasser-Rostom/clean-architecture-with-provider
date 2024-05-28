@@ -20,26 +20,29 @@ class PhotoProvider with ChangeNotifier {
   Future<void> fetchPhotos() async {
     _isLoading = true;
     notifyListeners();
-
-    final result = await getPhotosUseCase();
-    result.fold(
-          (failure) {
-        if (failure is ServerFailure) {
-          _errorMessage = failure.errorMessage;
-        } else if (failure is CacheFailure) {
-          _errorMessage = failure.errorMessage;
-        } else {
-          _errorMessage = 'Unexpected error';
-        }
-        _photos = [];
-      },
-          (photos) {
-        _photos = photos;
-        _errorMessage = null;
-      },
-    );
-
-    _isLoading = false;
-    notifyListeners();
+    try {
+      final result = await getPhotosUseCase();
+      result.fold(
+            (failure) {
+          if (failure is ServerFailure || failure is CacheFailure) {
+            _errorMessage = failure.errorMessage;
+          } else {
+            _errorMessage = 'Unexpected error';
+          }
+          _photos = [];
+        },
+            (photos) {
+          _photos = photos;
+          _errorMessage = null;
+        },
+      );
+    } catch (e) {
+      _errorMessage = 'Unexpected error';
+      _photos = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
+
 }
